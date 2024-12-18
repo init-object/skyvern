@@ -23,7 +23,7 @@ from skyvern.webeye.scraper.scraper import ELEMENT_NODE_ATTRIBUTES, CleanupEleme
 LOG = structlog.get_logger()
 
 USELESS_SHAPE_ATTRIBUTE = [SKYVERN_ID_ATTR, "id", "aria-describedby"]
-SVG_SHAPE_CONVERTION_ATTEMPTS = 3
+SVG_SHAPE_CONVERTION_ATTEMPTS = 1
 CSS_SHAPE_CONVERTION_ATTEMPTS = 1
 INVALID_SHAPE = "N/A"
 
@@ -151,7 +151,7 @@ async def _convert_svg_to_string(
             element["isDropped"] = True
             return
 
-        LOG.debug("call LLM to convert SVG to string shape", element_id=element_id)
+        LOG.info("call LLM to convert SVG to string shape", element_id=element_id, svg_element=svg_html)
         svg_convert_prompt = prompt_engine.load_prompt("svg-convert", svg_element=svg_html)
 
         for retry in range(SVG_SHAPE_CONVERTION_ATTEMPTS):

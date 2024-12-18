@@ -100,6 +100,7 @@ class Settings(BaseSettings):
     LLM_CONFIG_TEMPERATURE: float = 0
     # LLM PROVIDER SPECIFIC
     ENABLE_OPENAI: bool = False
+    ENABLE_MISTRAL: bool = False
     ENABLE_ANTHROPIC: bool = False
     ENABLE_AZURE: bool = False
     ENABLE_AZURE_GPT4O_MINI: bool = False
@@ -107,6 +108,7 @@ class Settings(BaseSettings):
     ENABLE_GEMINI: bool = False
     # OPENAI
     OPENAI_API_KEY: str | None = None
+    OPENAI_API_BASE: str | None = None
     # ANTHROPIC
     ANTHROPIC_API_KEY: str | None = None
     # AZURE

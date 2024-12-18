@@ -314,7 +314,7 @@ main() {
     choose_python_version_or_fail
     remove_poetry_env
     install_dependencies
-    setup_postgresql
+    # setup_postgresql
     activate_poetry_env
     install_dependencies_after_poetry_env
     run_alembic_upgrade

@@ -48,6 +48,9 @@ def parse_api_response(response: litellm.ModelResponse, add_assistant_prefix: bo
     content = None
     try:
         content = response.choices[0].message.content
+        LOG.info("LLM response", content=content)
+        if content.endswith("</s>"):
+            content = content[:-len("</s>")]
         # Since we prefilled Anthropic response with "{" we need to add it back to the response to have a valid json object:
         if add_assistant_prefix:
             content = "{" + content

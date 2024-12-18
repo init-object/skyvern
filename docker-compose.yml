@@ -3,10 +3,10 @@ services:
     image: postgres:14-alpine
     restart: always
     # comment out if you want to externally connect DB
-    # ports:
-    #   - 5432:5432
+    ports:
+      - 5432:5432
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - ../postgres-data:/var/lib/postgresql/data
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
       - POSTGRES_USER=skyvern
@@ -19,7 +19,7 @@ services:
       retries: 5
 
   skyvern:
-    image: public.ecr.aws/skyvern/skyvern:latest
+    image: swr.cn-south-1.myhuaweicloud.com/coastal/skyvern:0.1.0.1
     restart: on-failure
     # comment out if you want to externally call skyvern API
     ports:
@@ -30,21 +30,34 @@ services:
       - ./har:/data/har
       - ./log:/data/log
       - ./.streamlit:/app/.streamlit
+      - /etc/timezone:/etc/timezone
+      - /etc/localtime:/etc/localtime
+      # - ./skyvern:/app/skyvern
     environment:
       - DATABASE_STRING=postgresql+psycopg://skyvern:skyvern@postgres:5432/skyvern
       - BROWSER_TYPE=chromium-headful
-      - ENABLE_OPENAI=true
-      - OPENAI_API_KEY=<your_openai_key>
+      - LITELLM_LOG=DEBUG
+      # - ENABLE_OPENAI=true
+      # - LLM_KEY=OPENAI_GPT4O_MINI
+      # - OPENAI_API_KEY=<your_openai_api_key>
+      # - OPENAI_API_BASE=https://free.v36.cm
+      # - LLM_KEY=OPENAI_GPT4O
+      # - OPENAI_API_KEY=<your_openai_api_key>
+      # - OPENAI_API_BASE=https://models.inference.ai.azure.com
+      - ENABLE_MISTRAL=true
+      - LLM_KEY=MISTRAL_7B_Q4
+      - OPENAI_API_BASE=http://localhost:1337/api/v1
+      - OPENAI_API_KEY=<your_openai_api_key>
       # If you want to use other LLM provider, like azure and anthropic:
       # - ENABLE_ANTHROPIC=true
       # - LLM_KEY=ANTHROPIC_CLAUDE3_OPUS
       # - ANTHROPIC_API_KEY=<your_anthropic_key>
       # - ENABLE_AZURE=true
       # - LLM_KEY=AZURE_OPENAI
-      # - AZURE_DEPLOYMENT=<your_azure_deployment>
+      # - AZURE_DEPLOYMENT=gpt-4o
       # - AZURE_API_KEY=<your_azure_api_key>
-      # - AZURE_API_BASE=<your_azure_api_base>
-      # - AZURE_API_VERSION=<your_azure_api_version>
+      # - AZURE_API_BASE=https://models.inference.ai.azure.com
+      # - AZURE_API_VERSION=latest
     depends_on:
       postgres:
         condition: service_healthy
@@ -65,6 +78,8 @@ services:
       - ./videos:/data/videos
       - ./har:/data/har
       - ./.streamlit:/app/.streamlit
+      - /etc/timezone:/etc/timezone
+      - /etc/localtime:/etc/localtime
     environment:
     # if you want to run skyvern on a remote server,
     # you need to change the host in VITE_WSS_BASE_URL and VITE_API_BASE_URL to match your server ip

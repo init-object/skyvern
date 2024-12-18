@@ -1,4 +1,5 @@
 import structlog
+import litellm
 
 from skyvern.config import settings
 from skyvern.forge.sdk.api.llm.exceptions import (
@@ -47,6 +48,7 @@ class LLMConfigRegistry:
 if not any(
     [
         settings.ENABLE_OPENAI,
+        settings.ENABLE_MISTRAL,
         settings.ENABLE_ANTHROPIC,
         settings.ENABLE_AZURE,
         settings.ENABLE_AZURE_GPT4O_MINI,
@@ -79,7 +81,14 @@ if settings.ENABLE_OPENAI:
     LLMConfigRegistry.register_config(
         "OPENAI_GPT4O",
         LLMConfig(
-            "gpt-4o", ["OPENAI_API_KEY"], supports_vision=True, add_assistant_prefix=False, max_output_tokens=16384
+            "gpt-4o", ["OPENAI_API_KEY"],
+
+            litellm_params=LiteLLMParams(
+                api_base=settings.OPENAI_API_BASE,
+                api_key=settings.OPENAI_API_KEY,
+                model_info={"model_name": "gpt-4o"},
+            ),
+            supports_vision=True, add_assistant_prefix=False, max_output_tokens=16384
         ),
     )
     LLMConfigRegistry.register_config(
@@ -87,6 +96,12 @@ if settings.ENABLE_OPENAI:
         LLMConfig(
             "gpt-4o-mini",
             ["OPENAI_API_KEY"],
+
+            litellm_params=LiteLLMParams(
+                api_base=settings.OPENAI_API_BASE,
+                api_key=settings.OPENAI_API_KEY,
+                model_info={"model_name": "gpt-4o-mini"},
+            ),
             supports_vision=True,
             add_assistant_prefix=False,
             max_output_tokens=16384,
@@ -103,6 +118,28 @@ if settings.ENABLE_OPENAI:
         ),
     )
 
+if settings.ENABLE_MISTRAL:
+    LLMConfigRegistry.register_config(
+        "MISTRAL_7B_Q4",
+        LLMConfig(
+            "openai/mistral-ins-7b-q4", ["OPENAI_API_BASE", "OPENAI_API_KEY"],
+            litellm_params=LiteLLMParams(
+                api_base=settings.OPENAI_API_BASE,
+                api_key=settings.OPENAI_API_KEY,
+                model_info={"model_name": "openai/mistral-ins-7b-q4"},
+            ),
+            supports_vision=True, add_assistant_prefix=False, max_output_tokens=16384
+        ),
+    )
+    litellm.register_model({
+            "_": {
+            "max_tokens": 16384, 
+            "input_cost_per_token": 0.00002, 
+            "output_cost_per_token": 0.00006, 
+            "litellm_provider": "openai", 
+            "mode": "chat"
+        },
+    })
 
 if settings.ENABLE_ANTHROPIC:
     LLMConfigRegistry.register_config(
